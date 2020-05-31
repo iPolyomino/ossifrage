@@ -5,7 +5,7 @@ use std::default::Default;
 use std::iter::repeat;
 use std::string::String;
 
-use ansi_term::Colour;
+use ansi_term::{Colour, Style};
 use html5ever::driver::ParseOpts;
 use html5ever::parse_document;
 use html5ever::tendril::TendrilSink;
@@ -15,7 +15,8 @@ use rcdom::{Handle, NodeData, RcDom};
 const INDENT_SIZE: usize = 0;
 const DISPLAY_TAGS: bool = false;
 
-pub fn walk(indent: usize, handle: &Handle, mut col: &Colour) {
+pub fn walk(indent: usize, handle: &Handle, default_style: &Style) {
+    let mut style: Style = *default_style;
     let node = handle;
 
     print!("{}", repeat(" ").take(indent).collect::<String>());
@@ -23,7 +24,7 @@ pub fn walk(indent: usize, handle: &Handle, mut col: &Colour) {
     match node.data {
         NodeData::Text { ref contents } => {
             let line: &str = &contents.borrow();
-            println!("{}", col.paint(line));
+            println!("{}", style.paint(line));
         }
 
         NodeData::Element {
@@ -40,11 +41,12 @@ pub fn walk(indent: usize, handle: &Handle, mut col: &Colour) {
             }
             let tag_name = name.local.to_string();
             match &*tag_name {
-                "h1" => col = &Colour::RGB(255, 255, 0),
-                "h2" => col = &Colour::RGB(255, 255, 50),
-                "h3" => col = &Colour::RGB(255, 255, 100),
-                "h4" => col = &Colour::RGB(255, 255, 150),
-                "h5" => col = &Colour::RGB(255, 255, 200),
+                "h1" => style = Colour::RGB(255, 255, 0).bold(),
+                "h2" => style = Colour::RGB(255, 255, 50).bold(),
+                "h3" => style = Colour::RGB(255, 255, 100).bold(),
+                "h4" => style = Colour::RGB(255, 255, 150).bold(),
+                "h5" => style = Colour::RGB(255, 255, 200).bold(),
+                "code" => style = Colour::RGB(200, 200, 200).italic(),
                 _ => (),
             }
         }
@@ -67,7 +69,7 @@ pub fn walk(indent: usize, handle: &Handle, mut col: &Colour) {
             }
             _ => (),
         }
-        walk(indent + INDENT_SIZE, child, col);
+        walk(indent + INDENT_SIZE, child, &style);
     }
 }
 
