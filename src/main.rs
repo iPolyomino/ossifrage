@@ -1,10 +1,10 @@
-extern crate html5ever;
-extern crate reqwest;
-
 use ossifrage::fetch::fetch_document;
+use ossifrage::parse::{html2dom, walk};
 
 #[tokio::main]
 async fn main() {
     let response = fetch_document().await;
-    println!("{:}", response.unwrap());
+    let html = response.unwrap();
+    let dom = html2dom(&html);
+    walk(0, &dom.document);
 }
