@@ -5,6 +5,7 @@ use std::default::Default;
 use std::iter::repeat;
 use std::string::String;
 
+use ansi_term::Colour;
 use html5ever::driver::ParseOpts;
 use html5ever::parse_document;
 use html5ever::tendril::TendrilSink;
@@ -12,28 +13,41 @@ use html5ever::tree_builder::TreeBuilderOpts;
 use rcdom::{Handle, NodeData, RcDom};
 
 const INDENT_SIZE: usize = 0;
+const DISPLAY_TAGS: bool = false;
 
-pub fn walk(indent: usize, handle: &Handle) {
+pub fn walk(indent: usize, handle: &Handle, mut col: &Colour) {
     let node = handle;
 
     print!("{}", repeat(" ").take(indent).collect::<String>());
 
     match node.data {
         NodeData::Text { ref contents } => {
-            println!("{}", contents.borrow());
+            let line: &str = &contents.borrow();
+            println!("{}", col.paint(line));
         }
 
-        // NodeData::Element {
-        //     ref name,
-        //     ref attrs,
-        //     ..
-        // } => {
-        //     print!("<{}", name.local);
-        //     for attr in attrs.borrow().iter() {
-        //         print!(" {}=\"{}\"", attr.name.local, attr.value);
-        //     }
-        //     println!(">");
-        // }
+        NodeData::Element {
+            ref name,
+            ref attrs,
+            ..
+        } => {
+            if DISPLAY_TAGS {
+                print!("<{}", name.local);
+                for attr in attrs.borrow().iter() {
+                    print!(" {}=\"{}\"", attr.name.local, attr.value);
+                }
+                println!(">");
+            }
+            let tag_name = name.local.to_string();
+            match &*tag_name {
+                "h1" => col = &Colour::RGB(255, 255, 0),
+                "h2" => col = &Colour::RGB(255, 255, 50),
+                "h3" => col = &Colour::RGB(255, 255, 100),
+                "h4" => col = &Colour::RGB(255, 255, 150),
+                "h5" => col = &Colour::RGB(255, 255, 200),
+                _ => (),
+            }
+        }
         _ => {}
     }
 
@@ -53,7 +67,7 @@ pub fn walk(indent: usize, handle: &Handle) {
             }
             _ => (),
         }
-        walk(indent + INDENT_SIZE, child);
+        walk(indent + INDENT_SIZE, child, col);
     }
 }
 
