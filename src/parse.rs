@@ -11,28 +11,29 @@ use html5ever::tendril::TendrilSink;
 use html5ever::tree_builder::TreeBuilderOpts;
 use rcdom::{Handle, NodeData, RcDom};
 
+const INDENT_SIZE: usize = 0;
+
 pub fn walk(indent: usize, handle: &Handle) {
     let node = handle;
 
     print!("{}", repeat(" ").take(indent).collect::<String>());
 
     match node.data {
-        NodeData::Text { ref contents } => println!("{}", escape_default(&contents.borrow())),
-
-        NodeData::Element {
-            ref name,
-            ref attrs,
-            ..
-        } => {
-            assert!(name.ns == ns!(html));
-            print!("<{}", name.local);
-            for attr in attrs.borrow().iter() {
-                assert!(attr.name.ns == ns!());
-                print!(" {}=\"{}\"", attr.name.local, attr.value);
-            }
-            println!(">");
+        NodeData::Text { ref contents } => {
+            println!("{}", contents.borrow());
         }
 
+        // NodeData::Element {
+        //     ref name,
+        //     ref attrs,
+        //     ..
+        // } => {
+        //     print!("<{}", name.local);
+        //     for attr in attrs.borrow().iter() {
+        //         print!(" {}=\"{}\"", attr.name.local, attr.value);
+        //     }
+        //     println!(">");
+        // }
         _ => {}
     }
 
@@ -46,13 +47,13 @@ pub fn walk(indent: usize, handle: &Handle) {
 
             NodeData::Element { ref name, .. } => {
                 let tag_name = name.local.to_string();
-                if tag_name == "script" || tag_name == "head" {
+                if tag_name == "script" || tag_name == "head" || tag_name == "input" {
                     continue;
                 }
             }
             _ => (),
         }
-        walk(indent + 4, child);
+        walk(indent + INDENT_SIZE, child);
     }
 }
 
