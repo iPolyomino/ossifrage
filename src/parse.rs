@@ -13,22 +13,11 @@ use rcdom::{Handle, NodeData, RcDom};
 
 pub fn walk(indent: usize, handle: &Handle) {
     let node = handle;
+
     print!("{}", repeat(" ").take(indent).collect::<String>());
 
     match node.data {
-        NodeData::Document => println!("#Document"),
-
-        NodeData::Doctype {
-            ref name,
-            ref public_id,
-            ref system_id,
-        } => println!("<!DOCTYPE {} \"{}\" \"{}\">", name, public_id, system_id),
-
-        NodeData::Text { ref contents } => {
-            println!("#text: {}", escape_default(&contents.borrow()))
-        }
-
-        NodeData::Comment { ref contents } => println!("<!-- {} -->", escape_default(contents)),
+        NodeData::Text { ref contents } => println!("{}", escape_default(&contents.borrow())),
 
         NodeData::Element {
             ref name,
@@ -44,10 +33,21 @@ pub fn walk(indent: usize, handle: &Handle) {
             println!(">");
         }
 
-        NodeData::ProcessingInstruction { .. } => unreachable!(),
+        _ => {}
     }
 
     for child in node.children.borrow().iter() {
+        // if let NodeData::Text { contents } = &child.data if true {
+        //     continue;
+        // }
+        match child.data {
+            NodeData::Text { ref contents } => {
+                if contents.borrow().to_string() == "\n" {
+                    continue;
+                }
+            }
+            _ => (),
+        }
         walk(indent + 4, child);
     }
 }
