@@ -37,12 +37,16 @@ pub fn walk(indent: usize, handle: &Handle) {
     }
 
     for child in node.children.borrow().iter() {
-        // if let NodeData::Text { contents } = &child.data if true {
-        //     continue;
-        // }
         match child.data {
             NodeData::Text { ref contents } => {
                 if contents.borrow().to_string() == "\n" {
+                    continue;
+                }
+            }
+
+            NodeData::Element { ref name, .. } => {
+                let tag_name = name.local.to_string();
+                if tag_name == "script" || tag_name == "head" {
                     continue;
                 }
             }
