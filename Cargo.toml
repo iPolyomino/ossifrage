@@ -13,3 +13,4 @@ reqwest = "0.10"
 tokio = { version = "0.2", features = ["macros"] }
 html5ever = "0.25"
 markup5ever_rcdom = "0.1.0"
+regex = "1"
