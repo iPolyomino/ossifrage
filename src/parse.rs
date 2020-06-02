@@ -11,6 +11,7 @@ use html5ever::parse_document;
 use html5ever::tendril::TendrilSink;
 use html5ever::tree_builder::TreeBuilderOpts;
 use rcdom::{Handle, NodeData, RcDom};
+use regex::Regex;
 
 const INDENT_SIZE: usize = 0;
 const DISPLAY_TAGS: bool = false;
@@ -56,7 +57,8 @@ pub fn walk(indent: usize, handle: &Handle, default_style: &Style) {
     for child in node.children.borrow().iter() {
         match child.data {
             NodeData::Text { ref contents } => {
-                if contents.borrow().to_string() == "\n" {
+                let re = Regex::new(r"^\s*\n?$").unwrap();
+                if re.is_match(&contents.borrow()) {
                     continue;
                 }
             }
