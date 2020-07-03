@@ -31,12 +31,21 @@ pub fn display(indent: usize, node: &Handle, default_style: &Style) -> Style {
             }
             let tag_name = name.local.to_string();
             match &*tag_name {
+                // Content sectioning
                 "h1" => style = Colour::RGB(255, 255, 0).bold(),
                 "h2" => style = Colour::RGB(255, 255, 50).bold(),
                 "h3" => style = Colour::RGB(255, 255, 100).bold(),
                 "h4" => style = Colour::RGB(255, 255, 150).bold(),
                 "h5" => style = Colour::RGB(255, 255, 200).bold(),
-                "code" => style = Colour::RGB(200, 200, 200).italic(),
+                "h6" => style = Colour::RGB(255, 255, 250).bold(),
+
+                // Inline text semantics
+                "b" => style = style.bold(),
+                "em" => style = style.italic(),
+                "i" => style = style.italic(),
+                "s" => style = style.strikethrough(),
+                "strong" => style = style.bold(),
+                "u" => style = style.underline(),
                 _ => (),
             }
         }
