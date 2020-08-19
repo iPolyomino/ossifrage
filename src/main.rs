@@ -5,12 +5,10 @@ use std::process;
 use ansi_term::Style;
 use ossifrage::fetch::fetch_document;
 use ossifrage::parse::{html2dom, walk};
-use tui::backend::CrosstermBackend;
-use tui::Terminal;
 
 #[tokio::main]
 async fn main() -> Result<(), io::Error> {
-    clear_terminal()?;
+    clear_terminal();
 
     let mut url = String::new();
 
@@ -43,10 +41,6 @@ async fn main() -> Result<(), io::Error> {
     Ok(())
 }
 
-fn clear_terminal() -> Result<(), io::Error> {
-    let stdout = io::stdout();
-    let backend = CrosstermBackend::new(stdout);
-    let mut terminal = Terminal::new(backend)?;
-
-    terminal.clear()
+fn clear_terminal() {
+    print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
 }
